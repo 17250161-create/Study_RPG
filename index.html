@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183b32">
+  <title>Study RPG - 習慣の森</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="status-bar" aria-label="プレイヤーステータス">
+      <a class="brand" href="#home" aria-label="Study RPG ホーム">
+        <span class="brand-mark" aria-hidden="true">✦</span>
+        <span>STUDY <b>RPG</b></span>
+      </a>
+      <div class="player-status">
+        <div class="life-block" aria-label="週間ライフ">
+          <span id="weekly-life">❤️❤️❤️</span>
+          <small id="dragon-status">正常</small>
+        </div>
+        <div class="level-block">
+          <span class="level-label" id="level-label">LEVEL 1</span>
+          <div class="exp-track" role="progressbar" aria-label="次のレベルまでの経験値" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <span class="exp-fill" id="exp-fill"></span>
+          </div>
+          <span class="exp-caption" id="exp-caption">0 / 100 EXP</span>
+        </div>
+        <div class="gold-block" aria-label="所持ゴールド">
+          <span class="coin-icon" aria-hidden="true">G</span>
+          <span id="gold-count">0</span>
+        </div>
+        <div class="diamond-block" aria-label="所持ダイヤ">
+          <span aria-hidden="true">💎</span>
+          <span id="diamond-count">0</span>
+        </div>
+      </div>
+    </header>
+
+    <nav class="screen-nav" aria-label="メインメニュー">
+      <button class="nav-button is-active" type="button" data-screen="home-screen" aria-current="page">ホーム</button>
+      <button class="nav-button" type="button" data-screen="shop-screen">ショップ</button>
+      <button class="nav-button" type="button" data-screen="church-screen">教会</button>
+    </nav>
+
+    <main>
+      <section class="screen home-screen" id="home-screen" aria-labelledby="home-title">
+        <div class="home-copy">
+          <p class="eyebrow"><span></span> HABIT FOREST <span class="eyebrow-line"></span></p>
+          <h1 id="home-title">今日も勉強を<br><em>始めよう！</em></h1>
+          <p class="intro">一歩ずつ、きみだけの冒険を進めよう。</p>
+        </div>
+
+        <div class="dragon-stage" aria-label="相棒ドラゴンのステータス">
+          <div class="stage-sun"></div>
+          <span class="spark spark-one" aria-hidden="true">✦</span>
+          <span class="spark spark-two" aria-hidden="true">✧</span>
+          <img class="dragon" id="dragon-visual" src="images/ベビードラゴン.png" alt="ちびドラ">
+          <div class="stage-ground"></div>
+          <div class="dragon-name"><span class="name-dot"></span><span id="dragon-name">ちびドラ</span><span class="name-divider">/</span>Lv.<span id="dragon-level">1</span></div>
+          <div class="stage-caption" id="dragon-stage-caption">Stage 1 · 相棒がここで待っている</div>
+          <div class="dragon-condition" id="dragon-condition">調子良好</div>
+          <div class="area-marker"><span class="area-marker-label">CURRENT AREA</span><b id="current-area">習慣の森</b><span id="area-level-range">Lv. 1-30</span></div>
+          <div class="area-progress" id="area-progress">エリア達成 0 / 30日</div>
+        </div>
+
+        <div class="home-footer">
+          <div class="home-meta">
+            <div class="quest-note"><span class="note-icon" aria-hidden="true">◷</span><span>今日のクエスト</span><b>勉強セッション</b></div>
+            <div class="daily-goal">
+              <div class="daily-goal-heading"><label for="daily-goal-input">今日の目標</label><span id="combo-status">連続達成 0日 / G 1.0倍</span></div>
+              <div class="daily-goal-progress-row">
+                <div class="daily-goal-track" id="daily-goal-track" role="progressbar" aria-label="今日の勉強時間目標" aria-valuemin="0" aria-valuemax="60" aria-valuenow="0"><span class="daily-goal-fill" id="daily-goal-fill"></span></div>
+                <label class="daily-goal-value" for="daily-goal-input"><input id="daily-goal-input" type="number" min="1" max="1440" step="1" value="60" inputmode="numeric"><span>分</span></label>
+              </div>
+              <p class="daily-goal-caption" id="daily-goal-caption">0 / 60分</p>
+            </div>
+          </div>
+          <button class="primary-button" id="depart-button" type="button">
+            <span>クエスト出発</span><span class="button-detail">勉強を始める</span><span class="button-arrow" aria-hidden="true">→</span>
+          </button>
+        </div>
+
+        <section class="daily-tasks" aria-labelledby="daily-tasks-title">
+          <div class="daily-tasks-heading">
+            <div>
+              <p class="eyebrow"><span></span> DAILY TASKS</p>
+              <h2 id="daily-tasks-title">今日のタスク</h2>
+            </div>
+            <span id="daily-task-progress">0 / 3 完了</span>
+          </div>
+          <ul class="daily-task-list" id="daily-task-list"></ul>
+          <form class="daily-task-form" id="daily-task-form">
+            <label class="sr-only" for="daily-task-input">今日のタスクを追加</label>
+            <input id="daily-task-input" type="text" maxlength="60" placeholder="タスクを追加（例：英単語を復習）" required>
+            <button class="tool-button" type="submit">追加</button>
+          </form>
+          <p class="daily-task-reward" id="daily-task-reward">すべて完了すると +200 EXP / +20 G</p>
+        </section>
+
+        <section class="study-history" aria-labelledby="study-history-title">
+          <div class="study-history-heading">
+            <div>
+              <p class="eyebrow"><span></span> YOUR JOURNEY</p>
+              <h2 id="study-history-title">勉強の記録</h2>
+            </div>
+            <div class="study-week-summary" aria-label="直近7日間の勉強時間">
+              <b id="weekly-total">0分</b>
+              <span>直近7日間</span>
+            </div>
+          </div>
+          <div class="weekly-chart" id="weekly-chart" aria-label="直近7日間の日別勉強時間"></div>
+          <div class="recent-study">
+            <h3>最近のセッション</h3>
+            <p class="study-history-empty" id="study-history-empty" hidden>勉強を終えると、ここに記録が表示されます。</p>
+            <ul class="study-log-list" id="study-log-list"></ul>
+          </div>
+        </section>
+
+        <details class="test-tools">
+          <summary><span class="test-tools-mark" aria-hidden="true">⌘</span><span>テスト用操作</span><span class="test-tools-tag">DEV</span></summary>
+          <div class="test-tools-body">
+            <p class="test-tools-note">報酬やレベルアップの確認に使えます。テスト完了ログには印が付きます。</p>
+            <div class="test-tool-row">
+              <label for="test-duration">完了扱いの勉強時間</label>
+              <div class="test-tool-action">
+                <span class="test-number-wrap"><input id="test-duration" type="number" min="1" max="999" step="1" value="25" inputmode="numeric"><span>分</span></span>
+                <button class="tool-button" id="test-complete-button" type="button">完了判定</button>
+              </div>
+            </div>
+            <div class="test-tool-row">
+              <label for="test-level">プレイヤーLvを変更</label>
+              <div class="test-tool-action">
+                <span class="test-number-wrap"><input id="test-level" type="number" min="1" max="100" step="1" value="1" inputmode="numeric"><span>Lv</span></span>
+                <button class="tool-button" id="test-level-button" type="button">Lvを設定</button>
+              </div>
+            </div>
+            <div class="test-tool-row reset-row">
+              <span>プレイヤー情報と勉強ログを初期化</span>
+              <button class="tool-button danger-button" id="test-reset-button" type="button">データリセット</button>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="screen shop-screen" id="shop-screen" aria-labelledby="shop-title" hidden>
+        <div class="page-heading">
+          <p class="eyebrow"><span></span> ADVENTURER'S SHOP</p>
+          <h1 id="shop-title">冒険者のショップ</h1>
+          <p>勉強で集めた報酬を、冒険のアイテムと交換しよう。</p>
+        </div>
+        <div class="shop-balances"><span>所持ゴールド <b id="shop-gold">0 G</b></span><span>所持ダイヤ <b id="shop-diamonds">0 💎</b></span></div>
+        <div class="shop-grid" id="shop-items"></div>
+        <section class="inventory" aria-labelledby="inventory-title">
+          <div class="daily-tasks-heading"><h2 id="inventory-title">もちもの</h2><span id="inventory-empty">アイテムはまだありません。</span></div>
+          <ul class="inventory-list" id="inventory-list"></ul>
+        </section>
+        <section class="ticket-history" aria-labelledby="ticket-history-title">
+          <h2 id="ticket-history-title">チケット使用ログ</h2>
+          <ul id="ticket-log-list"></ul>
+          <p id="ticket-log-empty">使用したチケットはここに記録されます。</p>
+        </section>
+      </section>
+
+      <section class="screen church-screen" id="church-screen" aria-labelledby="church-title" hidden>
+        <div class="page-heading">
+          <p class="eyebrow"><span></span> SANCTUARY</p>
+          <h1 id="church-title">森の教会</h1>
+          <p>疲れたときは、立ち止まって整えよう。</p>
+        </div>
+        <section class="church-card" aria-labelledby="debuff-title">
+          <p class="eyebrow"><span></span> DRAGON'S CONDITION</p>
+          <h2 id="debuff-title">相棒の状態</h2>
+          <p id="debuff-status">現在、デバフはありません。</p>
+          <button class="tool-button" id="heal-button" type="button">300 G で風邪を治療する</button>
+        </section>
+        <section class="church-card" aria-labelledby="insurance-title">
+          <p class="eyebrow"><span></span> REST DAY PASS</p>
+          <h2 id="insurance-title">体調不良時のサボり保険</h2>
+          <p>有効にした日に1ページ開くなどの小さな行動をすると、その日の生存扱いになります。</p>
+          <div class="insurance-actions">
+            <button class="tool-button" id="insurance-toggle" type="button">今日の保険を有効にする</button>
+            <button class="primary-button" id="insurance-use" type="button">ミニマム行動を完了</button>
+          </div>
+          <p class="church-status" id="insurance-status" aria-live="polite"></p>
+        </section>
+        <section class="church-card taboo-card" aria-labelledby="taboo-title">
+          <p class="eyebrow"><span></span> PERSONAL RULE</p>
+          <h2 id="taboo-title">禁忌を破った</h2>
+          <p>勉強中にスマホを見てしまったときなど、自分で決めたルールを破った場合に所持ゴールドを半分にします。</p>
+          <button class="tool-button danger-button" id="taboo-button" type="button">禁忌を破った（所持金を半減）</button>
+        </section>
+      </section>
+
+      <section class="screen quest-screen" id="quest-screen" aria-labelledby="quest-title" hidden>
+        <button class="back-button" id="back-button" type="button"><span aria-hidden="true">←</span> ホーム</button>
+        <div class="quest-heading">
+          <p class="eyebrow"><span></span> FOCUS QUEST</p>
+          <h1 id="quest-title">勉強に集中しよう</h1>
+          <p id="quest-dragon-caption">ちびドラと一緒に、目の前の一問から。</p>
+        </div>
+        <div class="timer-panel">
+          <img class="timer-dragon" id="timer-dragon" src="images/ベビードラゴン.png" alt="" aria-hidden="true">
+          <label class="duration-control" for="duration-input">勉強時間 <span class="duration-input-wrap"><input id="duration-input" type="number" min="1" max="999" step="1" value="25" inputmode="numeric"><span>分</span></span></label>
+          <div class="timer-display" id="timer-display" role="timer" aria-live="off">25:00</div>
+          <p class="timer-state" id="timer-state">準備ができたらスタート</p>
+          <div class="timer-actions">
+            <button class="primary-button timer-start" id="start-button" type="button"><span>スタート</span><span class="button-arrow" aria-hidden="true">▶</span></button>
+            <button class="pause-button" id="pause-button" type="button" disabled>一時停止</button>
+          </div>
+          <button class="abort-button" id="abort-button" type="button">クエストを中断</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer"><span>STUDY RPG</span><span>自分のペースで、一歩ずつ。</span></footer>
+  </div>
+
+  <div class="modal-backdrop" id="rating-modal" hidden>
+    <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="rating-title">
+      <div class="dialog-symbol" aria-hidden="true">✦</div>
+      <p class="eyebrow dialog-eyebrow">QUEST COMPLETE</p>
+      <h2 id="rating-title">今日の集中度は？</h2>
+      <p class="dialog-copy"><span id="completed-minutes">25</span>分の勉強、おつかれさま！</p>
+      <p class="test-session-note" id="test-session-note" hidden>テスト用の完了判定です</p>
+      <div class="rating-options">
+        <button class="rating-button" type="button" data-multiplier="0.5" data-stars="1"><span class="stars">★☆☆</span><b>星1</b><small>0.5倍</small></button>
+        <button class="rating-button" type="button" data-multiplier="1" data-stars="2"><span class="stars">★★☆</span><b>星2</b><small>1.0倍</small></button>
+        <button class="rating-button" type="button" data-multiplier="1.2" data-stars="3"><span class="stars">★★★</span><b>星3</b><small>1.2倍</small></button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="result-modal" hidden>
+    <section class="dialog result-dialog" role="dialog" aria-modal="true" aria-labelledby="result-title">
+      <div class="dialog-symbol result-symbol" aria-hidden="true">✦</div>
+      <p class="eyebrow dialog-eyebrow">QUEST REWARD</p>
+      <h2 id="result-title">クエスト達成！</h2>
+      <p class="result-rating" id="result-rating"></p>
+      <div class="reward-list">
+        <div><span>獲得 EXP</span><b>+<span id="reward-exp">0</span></b></div>
+        <div><span>獲得ゴールド</span><b>+<span id="reward-gold">0</span> G</b></div>
+        <div class="goal-bonus-row" id="goal-bonus-row" hidden><span>目標達成ボーナス</span><b>+200 EXP / +20 G</b></div>
+        <div class="task-bonus-row" id="task-bonus-row" hidden><span>タスク達成ボーナス</span><b>+200 EXP / +20 G</b></div>
+        <div class="weekly-bonus-row" id="weekly-bonus-row" hidden><span>7日連続達成ボーナス</span><b>+1 💎</b></div>
+      </div>
+      <p class="level-up-message" id="level-up-message" hidden>LEVEL UP! <span id="level-up-detail"></span></p>
+      <button class="primary-button result-button" id="result-home-button" type="button"><span>ホームへ戻る</span><span class="button-arrow" aria-hidden="true">→</span></button>
+    </section>
+  </div>
+</body>
+</html>
