@@ -66,6 +66,8 @@
     expTrack: document.querySelector('.exp-track'),
     expCaption: document.getElementById('exp-caption'),
     goldCount: document.getElementById('gold-count'),
+    dragonStage: document.querySelector('.dragon-stage'),
+    levelupBanner: document.getElementById('levelup-banner'),
     dragonVisual: document.getElementById('dragon-visual'),
     timerDragon: document.getElementById('timer-dragon'),
     dragonName: document.getElementById('dragon-name'),
@@ -94,7 +96,7 @@
     resultHomeButton: document.getElementById('result-home-button'),
     dailyGoalInput: document.getElementById('daily-goal-input'),
     dailyGoalFill: document.getElementById('daily-goal-fill'),
-    dailyGoalTrack: document.getElementById('daily-goal-track'),
+    dailyGoalTrack: document.querySelector('.daily-goal-track'),
     dailyGoalCaption: document.getElementById('daily-goal-caption'),
     comboStatus: document.getElementById('combo-status'),
     dailyTaskList: document.getElementById('daily-task-list'),
@@ -214,8 +216,31 @@
   let deadline = 0;
   let timerInterval = null;
   let buffExpiryTimeout = null;
+  let levelUpEffectTimer = null;
+  let pendingLevelUpCelebration = null;
   let isRunning = false;
   let isTestSession = false;
+
+  function playDragonLevelUpEffect(fromLevel, toLevel) {
+    const stage = elements.dragonStage;
+    if (!stage) return;
+
+    if (elements.levelupBanner) {
+      const evolved = getDragonStage(toLevel).stage > getDragonStage(fromLevel).stage;
+      elements.levelupBanner.textContent = evolved
+        ? `EVOLUTION! Lv.${fromLevel} → Lv.${toLevel}`
+        : `LEVEL UP! Lv.${fromLevel} → Lv.${toLevel}`;
+    }
+
+    stage.classList.remove('is-level-up');
+    void stage.offsetWidth;
+    stage.classList.add('is-level-up');
+
+    window.clearTimeout(levelUpEffectTimer);
+    levelUpEffectTimer = window.setTimeout(() => {
+      stage.classList.remove('is-level-up');
+    }, 3000);
+  }
 
   function requiredTotalExp(level) {
     let totalExp = 0;
@@ -545,6 +570,7 @@
     processElapsedDays();
     const today = getDateKey();
     if (!state.tasks.length || state.dailyTaskDates.includes(today) || !state.tasks.every((task) => task.completedDate === today)) return;
+    const previousLevel = state.player.level;
     const taskBonusGold = Math.floor(GAME_RULES.dailyGoalBonusGold * (state.player.hasColdDebuff ? 0.5 : 1));
     state.dailyTaskDates.push(today);
     state.dailyTaskDates = state.dailyTaskDates.slice(-60);
@@ -554,6 +580,9 @@
     levelUpPlayer();
     saveState();
     renderStatus();
+    if (state.player.level > previousLevel) {
+      playDragonLevelUpEffect(previousLevel, state.player.level);
+    }
     elements.dailyTaskReward.textContent = `タスク達成！ +${GAME_RULES.dailyGoalBonusExp} EXP / +${taskBonusGold} G${weeklyBonus ? ' · 7日連続達成！ +1 💎' : ''}`;
   }
 
@@ -769,6 +798,11 @@
     elements.ratingModal.hidden = true;
     elements.resultModal.hidden = true;
     showScreen('home-screen');
+    if (pendingLevelUpCelebration) {
+      const { from, to } = pendingLevelUpCelebration;
+      pendingLevelUpCelebration = null;
+      playDragonLevelUpEffect(from, to);
+    }
   }
 
   function showQuest() {
@@ -916,6 +950,7 @@
     elements.levelUpMessage.hidden = state.player.level === previousLevel;
     if (state.player.level !== previousLevel) {
       elements.levelUpDetail.textContent = `Lv.${previousLevel} → Lv.${state.player.level}`;
+      pendingLevelUpCelebration = { from: previousLevel, to: state.player.level };
     }
     elements.ratingModal.hidden = true;
     elements.resultModal.hidden = false;
@@ -945,10 +980,14 @@
       return;
     }
     elements.testLevel.setCustomValidity('');
+    const previousLevel = state.player.level;
     state.player.level = level;
     state.player.currentExp = level === 1 ? 0 : requiredTotalExp(level);
     saveState();
     renderStatus();
+    if (level > previousLevel) {
+      playDragonLevelUpEffect(previousLevel, level);
+    }
   }
 
   function resetTestData() {
@@ -956,6 +995,7 @@
     state = structuredClone(DEFAULT_STATE);
     state.player.lastProcessedDate = getDateKey();
     isTestSession = false;
+    pendingLevelUpCelebration = null;
     saveState();
     elements.testLevel.value = '1';
     showHome();
